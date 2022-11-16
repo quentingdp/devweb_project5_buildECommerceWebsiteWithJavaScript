@@ -1,14 +1,11 @@
 //Main function to load when the html loads
-async function main() {
+const main = async () => {
 	const itemList = await getItemList();
 	displayAllItems(itemList);
 }
 
-main();
-
-//List all usable functions below.
 //Retrieve item list from the API
-async function getItemList() {
+const getItemList = async () => {
 	const itemList = fetch("http://localhost:3000/api/products")
 		.then((res) => {
 			if (res.ok) {
@@ -21,26 +18,24 @@ async function getItemList() {
 	return itemList;
 }
 
-//Display all items by looping on the function displayGivenItem that displays one given item
-async function displayAllItems(itemArray) {
+//Display all items by looping on them to create the full html content
+const displayAllItems = async (itemArray) => {
 	const itemHtmlCards = document.getElementById('items');
+	let itemHtmlContent = '';
 	for (let i = 0; i < itemArray.length; i++) {
-		displayGivenItem(itemHtmlCards, itemArray[i]);
+		itemHtmlContent += `
+		<a href="./product.html?id=${itemArray[i]._id}">
+			<article>
+				<img src="${itemArray[i].imageUrl}" alt="${itemArray[i].altTxt}">
+				<h3 class="productName">${itemArray[i].name}</h3>
+				<p class="productDescription">${itemArray[i].description}</p>
+			</article>
+		</a>`;
 	}
+	itemHtmlCards.insertAdjacentHTML('beforeend', itemHtmlContent);
 }
 
-//Display a given item by creating the html content of its card, from an item object at API product format
-async function displayGivenItem(itemHtmlCards, item) {
-	var itemHtmlCardContent = "<a href=\"./product.html?id="
-		+ item._id
-		+ "\"><article><img src=\""
-		+ item.imageUrl
-		+ "\" alt=\""
-		+ item.altTxt
-		+ "\"><h3 class=\"productName\">"
-		+ item.name
-		+ "</h3><p class=\"productDescription\">"
-		+ item.description
-		+ "</p></article></a>";
-	itemHtmlCards.innerHTML += itemHtmlCardContent;
-}
+// -----------------------------------------------------------------
+// --- Waiting for the DOM loading to start the main function
+// -----------------------------------------------------------------
+window.addEventListener('load', main)
