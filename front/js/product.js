@@ -1,24 +1,40 @@
 //Main function to load when the html loads
 const main = async () => {
+	//Getting and loading the properties of the item in the page
 	const item = await getItemFromUrl();
 	fillItemProperties(item);
 
-	//Définition de la structure du JSON à définir dans le localStorage pour le stockage du panier
-	//Création d'un exemple
-	const cartitem1 = {
-		id: 'a6ec5b49bd164d7fbe10f37b6363f9fb',
-		quantity: 26,
-		color: 'Pink'
-	};
-	const cartitem2 = {
-		id: 'a6ec5b49bd164d7fbe10f37b6363f9fb',
-		quantity: 22,
-		color: 'Brown'
-	};
-	const myarray = [cartitem1, cartitem2];
-	localStorage.setItem('cartItems', JSON.stringify(myarray));
-	const cartItems = localStorage.getItem('cartItems');
-	console.log(cartItems);
+	//Initialyzing the inputs of current page and activating behaviours
+	const currentCartItem = new CartItem(item._id, 0, '')
+
+	//Activating the quantity field behavior : when loses the focus,
+	//the quantity is updated in our currentCartItem (except if the value is outside limits)
+	const htmlInputQuantity = document.getElementById('quantity');
+	htmlInputQuantity.addEventListener('blur', (event) => {
+		updateCurrentQuantity(htmlInputQuantity, currentCartItem);
+	});
+
+	//Activating the color field behavior : when loses the focus,
+	//the color is updated in our currentCartItem
+	const htmlInputColor = document.getElementById('colors');
+	htmlInputColor.addEventListener('blur', (event) => {
+		updateCurrentColor(htmlInputColor, currentCartItem);
+	});
+
+	//Activating the button "Ajouter au panier" click behavior
+	const button = document.getElementById('addToCart');
+	button.addEventListener('click', (event) => {
+		addCurrentCartItemInCart(currentCartItem);
+	});
+}
+
+//Define the class that represents a Cart Item
+class CartItem {
+	constructor(id, quantity, color) {
+		this.id = id;
+		this.quantity = quantity;
+		this.color = color;
+	}
 }
 
 //Retrieve specific item from the API given its id, found in the URL in the parameter "id"
@@ -52,6 +68,65 @@ const fillItemProperties = (item) => {
 		itemColorsOptions += `<option value="${item.colors[i]}">${item.colors[i]}</option>`;
 	}
 	document.getElementById('colors').insertAdjacentHTML('beforeend', itemColorsOptions);
+}
+
+//This function updates the quantity chosen and deals with errors
+const updateCurrentQuantity = (htmlInputQuantity, currentCartItem) => {
+	const qty = htmlInputQuantity.value;
+	if (isNaN(qty) || qty < 1 || qty > 100) {
+		htmlInputQuantity.value = 0;
+		currentCartItem.quantity = 0;
+		alert(`La valeur ${qty} n'est pas autorisée. Elle doit être entre 1 et 100.`);
+	} else {
+		currentCartItem.quantity = qty * 1;
+	}
+}
+
+//This function updates the color chosen and deals with errors
+const updateCurrentColor = (htmlInputColor, currentCartItem) => {
+	currentCartItem.color = htmlInputColor.options[htmlInputColor.selectedIndex].value;
+}
+
+//This function loads the stored cart in the local storage, cleans it, adds the current Cart chosen in the page into the cart (if all data is valid) and push the whole cart in the local storage
+const addCurrentCartItemInCart = (currentCartItem) => {
+	//Initially, we check if the item is valid (i.e. color has been filled and quantity is not 0)
+	if (currentCartItem.color === '' || currentCartItem.quantity === 0) {
+		alert("Vous devez choisir une couleur et une quantité différente de 0 avant d'ajouter au panier");
+	} else {
+		const cart = [];
+		//boolean used to know if we already added our current item in the cart
+		let isAdded = false;
+		//Initialyzation of the cart from the Local Storage, if any
+		if (localStorage.getItem('cartItems')) {
+			try {
+				const cartStored = JSON.parse(localStorage.getItem('cartItems'));
+				for (let i = 0; i < cartStored.length; i++) {
+					//We load the cart items only if they are valid (i.e. all properties are available)
+					if (cartStored[i].id && Number.isInteger(cartStored[i].quantity) && cartStored[i].color) {
+						//We add our current item in the cart if the primary key matches
+						if (cartStored[i].id === currentCartItem.id && cartStored[i].color === currentCartItem.color) {
+							cart.push(new CartItem(cartStored[i].id, cartStored[i].quantity + currentCartItem.quantity, cartStored[i].color));
+							isAdded = true;
+							alert('Ajouté dans le panier');
+						} else {
+							cart.push(new CartItem(cartStored[i].id, cartStored[i].quantity, cartStored[i].color));
+						}
+					} else {
+						console.warn(`Un article du panier stocké localement n'était pas valide. Il a été retiré du panier : ${JSON.stringify(cartStored[i])}`);
+					}
+				}
+			} catch (e) {
+				console.error("Le panier stocké n'est pas valide. Il a été réinitialisé. Code d'erreur :", e);
+			}
+		};
+		//Adding our current item into the Cart, if not already
+		if (!isAdded) {
+			cart.push(new CartItem(currentCartItem.id, currentCartItem.quantity, currentCartItem.color));
+			alert('Ajouté dans le panier');
+		}
+		//Replaces the cart defined in the Local Storage by the cart stored in the Array "cart"
+		localStorage.setItem('cartItems', JSON.stringify(cart));
+	}
 }
 
 // -----------------------------------------------------------------
