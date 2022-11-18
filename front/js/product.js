@@ -10,14 +10,14 @@ const main = async () => {
 	//Activating the quantity field behavior : when loses the focus,
 	//the quantity is updated in our currentCartItem (except if the value is outside limits)
 	const htmlInputQuantity = document.getElementById('quantity');
-	htmlInputQuantity.addEventListener('blur', (event) => {
+	htmlInputQuantity.addEventListener('input', (event) => {
 		updateCurrentQuantity(htmlInputQuantity, currentCartItem);
 	});
 
 	//Activating the color field behavior : when loses the focus,
 	//the color is updated in our currentCartItem
 	const htmlInputColor = document.getElementById('colors');
-	htmlInputColor.addEventListener('blur', (event) => {
+	htmlInputColor.addEventListener('input', (event) => {
 		updateCurrentColor(htmlInputColor, currentCartItem);
 	});
 
@@ -74,8 +74,8 @@ const fillItemProperties = (item) => {
 const updateCurrentQuantity = (htmlInputQuantity, currentCartItem) => {
 	const qty = htmlInputQuantity.value;
 	if (isNaN(qty) || qty < 1 || qty > 100) {
-		htmlInputQuantity.value = 0;
-		currentCartItem.quantity = 0;
+		htmlInputQuantity.value = 1;
+		currentCartItem.quantity = 1;
 		alert(`La valeur ${qty} n'est pas autorisée. Elle doit être entre 1 et 100.`);
 	} else {
 		currentCartItem.quantity = qty * 1;
