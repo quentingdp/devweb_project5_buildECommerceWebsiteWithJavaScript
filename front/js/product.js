@@ -37,7 +37,10 @@ class CartItem {
 	}
 }
 
-//Retrieve specific item from the API given its id, found in the URL in the parameter "id"
+/**
+ * Retrieve specific item from the API product given its id, found in the URL in the parameter "id"
+ * @returns {Promise<{colors: string[],"_id": string, name: string, price: number, imageUrl: string, description: string, altTxt: string}>}
+ */
 const getItemFromUrl = async () => {
 	const url = new URL(window.location.href);
 	const productId = url.searchParams.get("id");
@@ -53,7 +56,10 @@ const getItemFromUrl = async () => {
 	return item;
 }
 
-//Fill the properties of the item given in the DOM
+/**
+ * Fill in the DOM the properties of the item given as parameter
+ * @param {{colors: string[],"_id": string, name: string, price: number, imageUrl: string, description: string, altTxt: string}} item 
+ */
 const fillItemProperties = (item) => {
 	//The element containing the image is the only one of the class "item__img"
 	document.getElementsByClassName('item__img')[0].insertAdjacentHTML('beforeend', `<img src="${item.imageUrl}" alt="${item.altTxt}">`);
@@ -70,7 +76,11 @@ const fillItemProperties = (item) => {
 	document.getElementById('colors').insertAdjacentHTML('beforeend', itemColorsOptions);
 }
 
-//This function updates the quantity chosen and deals with errors
+/**
+ * Updates the quantity chosen and deals with errors
+ * @param {HTMLElement} htmlInputQuantity 
+ * @param {CartItem} currentCartItem 
+ */
 const updateCurrentQuantity = (htmlInputQuantity, currentCartItem) => {
 	const qty = htmlInputQuantity.value;
 	if (isNaN(qty) || qty < 1 || qty > 100) {
@@ -82,12 +92,19 @@ const updateCurrentQuantity = (htmlInputQuantity, currentCartItem) => {
 	}
 }
 
-//This function updates the color chosen and deals with errors
+/**
+ * Updates the color chosen and deals with errors
+ * @param {HTMLElement} htmlInputColor 
+ * @param {CartItem} currentCartItem 
+ */
 const updateCurrentColor = (htmlInputColor, currentCartItem) => {
 	currentCartItem.color = htmlInputColor.options[htmlInputColor.selectedIndex].value;
 }
 
-//This function loads the stored cart in the local storage, cleans it, adds the current Cart chosen in the page into the cart (if all data is valid) and push the whole cart in the local storage
+/**
+ * Loads the stored cart in the local storage, cleans it, adds the current Cart chosen in the page into the cart (if all data is valid) and push the whole cart in the local storage
+ * @param {CartItem} currentCartItem 
+ */
 const addCurrentCartItemInCart = (currentCartItem) => {
 	//Initially, we check if the item is valid (i.e. color has been filled and quantity is not 0)
 	if (currentCartItem.color === '' || currentCartItem.quantity === 0) {

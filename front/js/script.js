@@ -4,7 +4,10 @@ const main = async () => {
 	displayAllItems(itemList);
 }
 
-//Retrieve item list from the API
+/**
+ * Retrieve the list of all catalog items from the API products
+ * @returns {Promise<{colors: string[],"_id": string, name: string, price: number, imageUrl: string, description: string, altTxt: string}[]>}
+ */
 const getItemList = async () => {
 	const itemList = fetch("http://localhost:3000/api/products")
 		.then((res) => {
@@ -18,7 +21,10 @@ const getItemList = async () => {
 	return itemList;
 }
 
-//Display all items by looping on them to create the full html content
+/**
+ * Display all items by looping on them to create the full html content
+ * @param {{colors: string[],"_id": string, name: string, price: number, imageUrl: string, description: string, altTxt: string}[]} itemArray List of all catalog items, formatted as answer of the API products
+ */
 const displayAllItems = async (itemArray) => {
 	const itemHtmlCards = document.getElementById('items');
 	let itemHtmlContent = '';

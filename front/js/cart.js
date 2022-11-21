@@ -52,7 +52,10 @@ class CartItem {
 	}
 }
 
-//Retrieve item list from the API
+/**
+ * Retrieve item list from the API
+ * @returns {Promise<{colors: string[],"_id": string, name: string, price: number, imageUrl: string, description: string, altTxt: string}[]>}
+ */
 const getItemList = async () => {
 	const itemList = fetch("http://localhost:3000/api/products")
 		.then((res) => {
@@ -66,8 +69,11 @@ const getItemList = async () => {
 	return itemList;
 }
 
-//This function loads the stored cart in the local storage and cleans it. Then, it displays it in the page
-//NB: we gathered these 2 behaviours in one function given the performance cost required, to avoid looping 2 different times
+/**
+ * Loads the stored cart in the local storage, cleans it and displays it in the page
+ * @param {CartItem[]} cart 
+ * @param {{colors: string[],"_id": string, name: string, price: number, imageUrl: string, description: string, altTxt: string}[]} itemList 
+ */
 const getStoredCartAndDisplay = (cart, itemList) => {
 	//Initialyzation of the cart from the Local Storage, if any + preparation of the html to display
 	const cartHtmlItems = document.getElementById('cart__items');
@@ -135,7 +141,12 @@ const getStoredCartAndDisplay = (cart, itemList) => {
 	htmlTotalPrice.insertAdjacentHTML('beforeend', totalPrice + ',00');
 }
 
-//Retrieve the price of an item from the item List (coming from the API), given its id
+/**
+ * Retrieve the price of an item from the item List (coming from the API), given its id
+ * @param {string} id item identification
+ * @param {{colors: string[],"_id": string, name: string, price: number, imageUrl: string, description: string, altTxt: string}[]} itemList 
+ * @returns {number} If the id does not match an existing one, an error message is displayed, and the function returns 0
+ */
 const getPriceOfItem = (id, itemList) => {
 	for (let i = 0; i < itemList.length; i++) {
 		if (itemList[i]._id === id) {
@@ -146,7 +157,12 @@ const getPriceOfItem = (id, itemList) => {
 	return 0;
 }
 
-//This functions triggers when a quantity is updated : it identifies which item has been changed, then update the cart + the total quantities and prices
+/**
+ * Triggers when a quantity is updated : it identifies which item has been changed, then update the cart + the total quantities and prices
+ * @param {Event} event 
+ * @param {CartItem[]} cart 
+ * @param {{colors: string[],"_id": string, name: string, price: number, imageUrl: string, description: string, altTxt: string}[]} itemList 
+ */
 const updateCurrentQuantity = (event, cart, itemList) => {
 	//Gather all item related data from HTML
 	let itemQuantity = event.currentTarget.value;
@@ -182,7 +198,12 @@ const updateCurrentQuantity = (event, cart, itemList) => {
 	localStorage.setItem('cartItems', JSON.stringify(cart));
 }
 
-//This functions triggers when a button "delete" is clicked : it identifies which item has been changed, then removes it from the cart
+/**
+ * Triggers when a button "delete" is clicked : it identifies which item has been changed, then removes it from the cart
+ * @param {Event} event 
+ * @param {CartItem[]} cart 
+ * @param {{colors: string[],"_id": string, name: string, price: number, imageUrl: string, description: string, altTxt: string}[]} itemList 
+ */
 const removeItemFromChart = (event, cart, itemList) => {
 	//Gather all item related data from HTML
 	const thisItemCart = event.currentTarget.closest("article");
@@ -213,7 +234,11 @@ const removeItemFromChart = (event, cart, itemList) => {
 	localStorage.setItem('cartItems', JSON.stringify(cart));
 }
 
-//Checks the overall validity of the form, based on the validity of all its inputs, write the error message in the form and returs the validity of the form as a boolean
+/**
+ * Checks the overall validity of the form, based on the validity of all its inputs and write the error messages in the form if required
+ * @param {{firstName: string, lastName: string, address: string, city: string, email: string}} formInputs 
+ * @returns {boolean} Validity of the form content given in parameter
+ */
 const checkFormValidity = (formInputs) => {
 	let isFormValid = true;
 	const validityFirstNamePattern = /[0-9]/;
@@ -256,7 +281,11 @@ const checkFormValidity = (formInputs) => {
 	return isFormValid;
 }
 
-//This function calls the API to send the order given in JSON format, and returns API's response in JSON format (if successfull)
+/**
+ * Calls the API to send the order given in JSON format
+ * @param {{contact: {firstName: string, lastName: string, address: string, city: string, email: string}, products: string[]}} requestBody 
+ * @returns {Promise<{orderId: string}>} Order API's response
+ */
 const sendOrderAPI = async (requestBody) => {
 	const requestAnswer = await fetch('http://localhost:3000/api/products/order', {
 		method: 'POST',
@@ -274,7 +303,11 @@ const sendOrderAPI = async (requestBody) => {
 }
 
 
-//Sends the order to the API after applying the validity checks
+/**
+ * Sends the order to the API after applying the validity checks
+ * @param {{firstName: string, lastName: string, address: string, city: string, email: string}} formInputs 
+ * @param {CartItem[]} cart 
+ */
 const sendForm = async (formInputs, cart) => {
 	if (checkFormValidity(formInputs)) {
 		//Formatting of API's expected body
